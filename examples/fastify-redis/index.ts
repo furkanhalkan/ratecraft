@@ -80,9 +80,9 @@ async function main() {
   }));
 
   app.get("/health", async () => {
-    const redisHealthy = await limiter
-      .consume("health-check")
-      .then(() => true)
+    const redisHealthy = await redis
+      .ping()
+      .then((r) => r === "PONG")
       .catch(() => false);
 
     return {

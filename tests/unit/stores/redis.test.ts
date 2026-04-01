@@ -47,7 +47,7 @@ function createMockRedis() {
     }),
 
     keys: vi.fn(async (pattern: string) => {
-      const prefix = pattern.replace("*", "");
+      const prefix = pattern.replaceAll("*", "");
       return [...store.keys()].filter((k) => k.startsWith(prefix));
     }),
 

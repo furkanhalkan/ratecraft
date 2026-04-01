@@ -12,7 +12,7 @@ importers:
         specifier: ^1.8.0
         version: 1.9.4
       '@types/express':
-        specifier: ^4.17.0
+        specifier: ^4.17.25
         version: 4.17.25
       '@types/memcached':
         specifier: ^2.2.10
@@ -21,13 +21,13 @@ importers:
         specifier: ^25.5.0
         version: 25.5.0
       '@types/supertest':
-        specifier: ^6.0.0
+        specifier: ^6.0.3
         version: 6.0.3
       '@vitest/coverage-v8':
         specifier: ^2.0.0
         version: 2.1.9(vitest@2.1.9(@types/node@25.5.0))
       express:
-        specifier: ^4.21.0
+        specifier: ^4.22.1
         version: 4.22.1
       fastify:
         specifier: ^4.28.0
