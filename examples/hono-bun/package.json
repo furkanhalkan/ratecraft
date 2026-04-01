@@ -1,0 +1,14 @@
+{
+  "name": "ratecraft-hono-bun-example",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Hono rate limiting example with RateCraft on Bun runtime",
+  "scripts": {
+    "start": "bun run index.ts"
+  },
+  "dependencies": {
+    "ratecraft": "workspace:*",
+    "hono": "^4.0.0"
+  }
+}

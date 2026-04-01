@@ -1,0 +1,19 @@
+{
+  "name": "ratecraft-fastify-redis-example",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Fastify rate limiting example with RateCraft and Redis",
+  "scripts": {
+    "start": "tsx index.ts"
+  },
+  "dependencies": {
+    "ratecraft": "workspace:*",
+    "fastify": "^4.28.0",
+    "fastify-plugin": "^4.5.0",
+    "ioredis": "^5.4.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.0.0"
+  }
+}

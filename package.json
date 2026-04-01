@@ -1,0 +1,127 @@
+{
+  "name": "ratecraft",
+  "version": "0.1.0",
+  "description": "Framework-agnostic, TypeScript-first rate limiter for Node.js, Bun, and Deno",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./express": {
+      "types": "./dist/adapters/express.d.ts",
+      "import": "./dist/adapters/express.js",
+      "require": "./dist/adapters/express.cjs"
+    },
+    "./fastify": {
+      "types": "./dist/adapters/fastify.d.ts",
+      "import": "./dist/adapters/fastify.js",
+      "require": "./dist/adapters/fastify.cjs"
+    },
+    "./hono": {
+      "types": "./dist/adapters/hono.d.ts",
+      "import": "./dist/adapters/hono.js",
+      "require": "./dist/adapters/hono.cjs"
+    },
+    "./redis": {
+      "types": "./dist/stores/redis.d.ts",
+      "import": "./dist/stores/redis.js",
+      "require": "./dist/stores/redis.cjs"
+    },
+    "./memcached": {
+      "types": "./dist/stores/memcached.d.ts",
+      "import": "./dist/stores/memcached.js",
+      "require": "./dist/stores/memcached.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "biome check .",
+    "lint:fix": "biome check --fix .",
+    "bench": "vitest bench",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "pnpm run build"
+  },
+  "keywords": [
+    "rate-limiter",
+    "rate-limiting",
+    "throttle",
+    "express",
+    "fastify",
+    "hono",
+    "middleware",
+    "redis",
+    "typescript",
+    "bun",
+    "deno"
+  ],
+  "author": "Furkan Alkan",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/furkanalkan/ratecraft"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "peerDependencies": {
+    "express": ">=4.0.0",
+    "fastify": ">=4.0.0",
+    "fastify-plugin": ">=4.0.0",
+    "hono": ">=3.0.0",
+    "ioredis": ">=5.0.0",
+    "memcached": ">=2.2.0"
+  },
+  "peerDependenciesMeta": {
+    "ioredis": {
+      "optional": true
+    },
+    "memcached": {
+      "optional": true
+    },
+    "express": {
+      "optional": true
+    },
+    "fastify": {
+      "optional": true
+    },
+    "hono": {
+      "optional": true
+    },
+    "fastify-plugin": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.8.0",
+    "@types/express": "^4.17.0",
+    "@types/memcached": "^2.2.10",
+    "@types/node": "^25.5.0",
+    "@types/supertest": "^6.0.0",
+    "@vitest/coverage-v8": "^2.0.0",
+    "express": "^4.21.0",
+    "fastify": "^4.28.0",
+    "fastify-plugin": "^4.5.0",
+    "hono": "^4.0.0",
+    "ioredis": "^5.4.0",
+    "memcached": "^2.2.2",
+    "mitata": "^1.0.0",
+    "supertest": "^7.0.0",
+    "tsup": "^8.0.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.4.0",
+    "vitest": "^2.0.0"
+  }
+}
