@@ -1,7 +1,7 @@
 # RateCraft
 
 [![npm version](https://img.shields.io/npm/v/ratecraft.svg)](https://www.npmjs.com/package/ratecraft)
-[![CI](https://github.com/furkanalkan/ratecraft/actions/workflows/ci.yml/badge.svg)](https://github.com/furkanalkan/ratecraft/actions/workflows/ci.yml)
+[![CI](https://github.com/furkanhalkan/ratecraft/actions/workflows/ci.yml/badge.svg)](https://github.com/furkanhalkan/ratecraft/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue.svg)](https://www.typescriptlang.org/)
 [![Node.js](https://img.shields.io/badge/Node.js-%3E%3D18-green.svg)](https://nodejs.org/)
