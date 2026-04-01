@@ -38,11 +38,7 @@
       "require": "./dist/stores/memcached.cjs"
     }
   },
-  "files": [
-    "dist",
-    "LICENSE",
-    "README.md"
-  ],
+  "files": ["dist", "LICENSE", "README.md"],
   "scripts": {
     "build": "tsup",
     "test": "vitest run",
