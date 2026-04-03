@@ -6,6 +6,7 @@ export default defineConfig({
     "adapters/express": "src/adapters/express.ts",
     "adapters/fastify": "src/adapters/fastify.ts",
     "adapters/hono": "src/adapters/hono.ts",
+    "adapters/h3": "src/adapters/h3.ts",
     "stores/redis": "src/stores/redis.ts",
     "stores/memcached": "src/stores/memcached.ts",
   },
@@ -15,5 +16,5 @@ export default defineConfig({
   sourcemap: true,
   splitting: false,
   treeshake: true,
-  external: ["ioredis", "memcached", "express", "fastify", "fastify-plugin", "hono"],
+  external: ["ioredis", "memcached", "express", "fastify", "fastify-plugin", "hono", "h3"],
 });

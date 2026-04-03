@@ -1,3 +1,5 @@
+import { ConfigError, ErrorCode } from "../core/errors";
+
 const DURATION_REGEX = /^(\d+)(s|m|h|d)$/;
 
 const MULTIPLIERS: Record<string, number> = {
@@ -20,20 +22,24 @@ const MULTIPLIERS: Record<string, number> = {
  *
  * @param duration - Duration string (e.g. "15m", "1h", "30s") or number (ms)
  * @returns Duration in milliseconds
- * @throws Error if the format is invalid
+ * @throws ConfigError if the format is invalid
  */
 export function parseDuration(duration: string | number): number {
   if (typeof duration === "number") {
     if (duration <= 0 || !Number.isFinite(duration)) {
-      throw new Error(`Invalid duration: expected a positive finite number, received: ${duration}`);
+      throw new ConfigError(
+        `Invalid duration: expected a positive finite number, received ${duration}.`,
+        ErrorCode.INVALID_DURATION,
+      );
     }
     return duration;
   }
 
   const match = DURATION_REGEX.exec(duration);
   if (!match) {
-    throw new Error(
-      `Invalid duration format: "${duration}". Expected format: <number><unit> where unit is s, m, h, or d (e.g. "15m", "1h", "30s")`,
+    throw new ConfigError(
+      `Invalid duration format: "${duration}".\n  → Expected format: <number><unit> (e.g. "30s", "5m", "1h", "1d")`,
+      ErrorCode.INVALID_DURATION,
     );
   }
 
@@ -42,13 +48,17 @@ export function parseDuration(duration: string | number): number {
   const multiplier = MULTIPLIERS[unit];
 
   if (multiplier === undefined) {
-    throw new Error(
-      `Invalid duration format: "${duration}". Expected format: <number><unit> where unit is s, m, h, or d (e.g. "15m", "1h", "30s")`,
+    throw new ConfigError(
+      `Invalid duration unit in "${duration}".\n  → Supported units: s (seconds), m (minutes), h (hours), d (days)`,
+      ErrorCode.INVALID_DURATION,
     );
   }
 
   if (value <= 0) {
-    throw new Error(`Invalid duration: expected a positive value, received: "${duration}"`);
+    throw new ConfigError(
+      `Invalid duration: expected a positive value, received "${duration}".`,
+      ErrorCode.INVALID_DURATION,
+    );
   }
 
   return value * multiplier;

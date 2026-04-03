@@ -14,7 +14,7 @@ export type {
 } from "./core/types";
 
 // Errors
-export { RateCraftError, StoreError, ConfigError } from "./core/errors";
+export { RateCraftError, StoreError, ConfigError, ErrorCode } from "./core/errors";
 
 // Stores
 export { MemoryStore } from "./stores/memory";

@@ -176,21 +176,89 @@ import { honoAdapter } from 'ratecraft/hono';
 app.use('*', honoAdapter(limiter));
 ```
 
+### H3 / Nitro / Nuxt
+
+```typescript
+import { h3Adapter, h3KeyGenerator } from 'ratecraft/h3';
+
+// As global middleware
+app.use(h3Adapter(limiter));
+
+// As per-route middleware
+app.post('/api/items', handler, { middleware: [h3Adapter(limiter)] });
+```
+
+#### `h3KeyGenerator(event: H3Event): string`
+
+Default key generator for H3 that extracts the client IP using `getRequestIP` with `x-forwarded-for` support. Returns `'unknown'` if no IP can be determined.
+
+```typescript
+import { h3KeyGenerator } from 'ratecraft/h3';
+
+const limiter = new RateCraft({
+  max: 100,
+  window: '15m',
+  keyGenerator: h3KeyGenerator,
+});
+```
+
+For Nuxt server middleware, create `server/middleware/rate-limit.ts`:
+
+```typescript
+import { RateCraft } from 'ratecraft';
+import { h3Adapter } from 'ratecraft/h3';
+
+const limiter = new RateCraft({ max: 100, window: '15m' });
+export default h3Adapter(limiter);
+```
+
 ---
 
 ## Error Classes
 
 ### `RateCraftError`
 
-Base error class. Properties: `message`, `code`.
+Base error class. Properties: `message`, `code`, `cause`.
+
+All error messages are prefixed with `[RateCraft]` for easy identification in logs.
 
 ### `ConfigError`
 
-Thrown for invalid configuration. Code: `'CONFIG_ERROR'`.
+Thrown for invalid configuration. Uses specific error codes from `ErrorCode`.
 
 ### `StoreError`
 
-Thrown when a store operation fails. Code: `'STORE_ERROR'`. Additional property: `originalError`.
+Thrown when a store operation fails. Properties: `storeName`, `originalError`, `cause`.
+
+### `ErrorCode`
+
+Constants for all error codes:
+
+| Code | Description |
+|------|-------------|
+| `ERR_INVALID_MAX` | `max` is not a positive integer |
+| `ERR_INVALID_WINDOW` | `window` is not a valid duration |
+| `ERR_INVALID_DURATION` | Duration string format is invalid |
+| `ERR_INVALID_STATUS_CODE` | `statusCode` is not in range 100-599 |
+| `ERR_UNKNOWN_ALGORITHM` | Unknown algorithm name |
+| `ERR_STORE` | General store error |
+| `ERR_STORE_GET_FAILED` | Store get operation failed |
+| `ERR_STORE_SET_FAILED` | Store set operation failed |
+| `ERR_STORE_INCREMENT_FAILED` | Store increment failed |
+| `ERR_STORE_CONNECTION` | Store connection error |
+| `ERR_STORE_PARSE` | Store data parse error |
+
+```typescript
+import { ErrorCode, ConfigError } from 'ratecraft';
+
+try {
+  new RateCraft({ max: -1, window: '1m' });
+} catch (err) {
+  if (err instanceof ConfigError) {
+    console.log(err.code); // 'ERR_INVALID_MAX'
+  }
+}
+```
 
 ---
 

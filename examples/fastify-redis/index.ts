@@ -79,20 +79,25 @@ async function main() {
     ],
   }));
 
-  app.get("/health", async () => {
-    const redisHealthy = await redis
+  // Health check — Redis status is updated by a background timer so the
+  // handler itself performs no expensive I/O (avoids CWE-400 / CWE-770).
+  let redisHealthy = true;
+  const healthInterval = setInterval(async () => {
+    redisHealthy = await redis
       .ping()
       .then((r) => r === "PONG")
       .catch(() => false);
+  }, 5_000);
+  healthInterval.unref(); // don't keep the process alive
 
-    return {
-      status: "ok",
-      redis: redisHealthy ? "connected" : "disconnected",
-    };
-  });
+  app.get("/health", async () => ({
+    status: "ok",
+    redis: redisHealthy ? "connected" : "disconnected",
+  }));
 
   // ─── Graceful shutdown ──────────────────────────────────────
   app.addHook("onClose", async () => {
+    clearInterval(healthInterval);
     await limiter.shutdown();
     await redis.quit();
   });

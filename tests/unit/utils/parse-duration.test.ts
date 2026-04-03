@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { ConfigError } from "../../../src/core/errors";
 import { parseDuration } from "../../../src/utils/parse-duration";
 
 describe("parseDuration", () => {
@@ -74,6 +75,11 @@ describe("parseDuration", () => {
 
     it("should include the invalid input in the error message", () => {
       expect(() => parseDuration("abc")).toThrow('"abc"');
+    });
+
+    it("should throw ConfigError instances", () => {
+      expect(() => parseDuration("abc")).toThrow(ConfigError);
+      expect(() => parseDuration(-1)).toThrow(ConfigError);
     });
   });
 });

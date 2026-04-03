@@ -8,13 +8,13 @@
 
 **Framework-agnostic, TypeScript-first rate limiter for Node.js, Bun, and Deno.**
 
-Zero runtime dependencies. Four battle-tested algorithms. Pluggable storage backends. First-class support for Express, Fastify, and Hono.
+Zero runtime dependencies. Four battle-tested algorithms. Pluggable storage backends. First-class support for Express, Fastify, Hono, and H3/Nitro (Nuxt).
 
 ## Features
 
 - **Four algorithms** — Token Bucket, Fixed Window, Sliding Window Counter, Sliding Window Log
 - **Three storage backends** — In-memory (with LRU eviction), Redis (Lua scripts), Memcached (CAS)
-- **Three framework adapters** — Express, Fastify, Hono
+- **Four framework adapters** — Express, Fastify, Hono, H3/Nitro (Nuxt)
 - **Zero runtime dependencies** — core package has no external dependencies
 - **TypeScript-first** — strict mode, full type coverage, no `any`
 - **Dual module output** — ESM and CommonJS
@@ -54,6 +54,7 @@ pnpm add memcached
 pnpm add express
 pnpm add fastify fastify-plugin
 pnpm add hono
+pnpm add h3
 ```
 
 ## Quick Start
@@ -137,6 +138,171 @@ const limiter = new RateCraft({
 app.use('*', honoAdapter(limiter));
 
 app.get('/', (c) => c.json({ message: 'Hello!' }));
+```
+
+### H3 / Nitro / Nuxt
+
+```typescript
+import { H3 } from 'h3';
+import { RateCraft } from 'ratecraft';
+import { h3Adapter } from 'ratecraft/h3';
+
+const app = new H3();
+
+const limiter = new RateCraft({
+  max: 100,
+  window: '15m',
+});
+
+app.use(h3Adapter(limiter));
+
+app.get('/', () => ({ message: 'Hello!' }));
+```
+
+For Nuxt, create a server middleware at `server/middleware/rate-limit.ts`:
+
+```typescript
+import { RateCraft } from 'ratecraft';
+import { h3Adapter } from 'ratecraft/h3';
+
+const limiter = new RateCraft({ max: 100, window: '15m' });
+
+export default h3Adapter(limiter);
+```
+
+## Usage Examples
+
+### Per-route rate limiting
+
+Apply different rate limits to different endpoints:
+
+```typescript
+import express from 'express';
+import { RateCraft } from 'ratecraft';
+import { expressAdapter } from 'ratecraft/express';
+
+const app = express();
+
+// Global: 100 requests per 15 minutes
+const globalLimiter = new RateCraft({ max: 100, window: '15m' });
+app.use(expressAdapter(globalLimiter));
+
+// Strict: 5 login attempts per minute
+const authLimiter = new RateCraft({
+  algorithm: 'sliding-window-counter',
+  max: 5,
+  window: '1m',
+  message: { error: 'Too many login attempts. Please wait.' },
+});
+app.post('/auth/login', expressAdapter(authLimiter), (req, res) => {
+  res.json({ token: '...' });
+});
+```
+
+### Rate limiting by user ID or API key
+
+Use `keyGenerator` to rate limit by authenticated user instead of IP:
+
+```typescript
+const limiter = new RateCraft({
+  max: 1000,
+  window: '1h',
+  keyGenerator: (req) => {
+    const r = req as express.Request;
+    // Authenticated user → limit by user ID
+    // Anonymous → limit by IP
+    return r.headers['x-api-key'] as string ?? r.ip ?? 'unknown';
+  },
+});
+```
+
+### Distributed rate limiting with Redis
+
+Share rate limit state across multiple server instances:
+
+```typescript
+import { RateCraft, MemoryStore } from 'ratecraft';
+import { RedisStore } from 'ratecraft/redis';
+import Redis from 'ioredis';
+
+const redis = new Redis(process.env.REDIS_URL);
+
+const limiter = new RateCraft({
+  algorithm: 'fixed-window',
+  max: 50,
+  window: '1m',
+  store: new RedisStore({ client: redis, prefix: 'api:rl:' }),
+  // Fall back to in-memory if Redis goes down
+  failStrategy: 'open',
+  fallbackStore: new MemoryStore(),
+  hooks: {
+    onFallback: (error) => {
+      console.warn('Redis unavailable, using in-memory fallback:', error.message);
+    },
+  },
+});
+```
+
+### Skipping certain requests
+
+Exclude health checks and static assets from rate limiting:
+
+```typescript
+const limiter = new RateCraft({
+  max: 100,
+  window: '15m',
+  skip: (req) => {
+    const r = req as express.Request;
+    return r.path === '/health' || r.path.startsWith('/static/');
+  },
+});
+```
+
+### Using hooks for monitoring
+
+Track rate limiting metrics with event hooks:
+
+```typescript
+const limiter = new RateCraft({
+  max: 100,
+  window: '15m',
+  hooks: {
+    onAllow: (key, result) => {
+      metrics.gauge('ratelimit.remaining', result.remaining, { key });
+    },
+    onDeny: (key, result) => {
+      metrics.increment('ratelimit.denied', { key });
+      console.warn(`[Rate Limited] ${key} — retry after ${result.retryAfter}s`);
+    },
+    onError: (error, key) => {
+      metrics.increment('ratelimit.errors');
+      console.error(`[Store Error] ${key}:`, error.message);
+    },
+  },
+});
+```
+
+### Direct usage without a framework
+
+Use RateCraft standalone for custom servers, CLI tools, or queue workers:
+
+```typescript
+import { RateCraft } from 'ratecraft';
+
+const limiter = new RateCraft({
+  algorithm: 'token-bucket',
+  max: 10,
+  window: '1m',
+});
+
+async function processJob(userId: string) {
+  const result = await limiter.consume(userId);
+  if (!result.allowed) {
+    console.log(`User ${userId} throttled. Retry in ${result.retryAfter}s`);
+    return;
+  }
+  // Process the job...
+}
 ```
 
 ## Algorithms

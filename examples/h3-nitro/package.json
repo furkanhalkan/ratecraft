@@ -1,17 +1,15 @@
 {
-  "name": "ratecraft-fastify-redis-example",
+  "name": "ratecraft-h3-nitro-example",
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Fastify rate limiting example with RateCraft and Redis",
+  "description": "H3/Nitro rate limiting example with RateCraft (Nuxt ecosystem)",
   "scripts": {
     "start": "tsx index.ts"
   },
   "dependencies": {
     "ratecraft": "workspace:*",
-    "fastify": "^5.7.2",
-    "fastify-plugin": "^5.1.0",
-    "ioredis": "^5.4.0"
+    "h3": "2.0.1-rc.20"
   },
   "devDependencies": {
     "tsx": "^4.0.0"

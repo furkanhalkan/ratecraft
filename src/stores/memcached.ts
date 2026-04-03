@@ -102,7 +102,12 @@ export class MemcachedStore implements RateLimitStore {
               // Another process may have created it — retry via CAS
               this.client.gets(prefixed, (retryErr: Error | undefined, retryData: GetsResult) => {
                 if (retryErr || retryData === undefined || (retryData as unknown) === false) {
-                  reject(retryErr ?? new Error("Failed to get key after add conflict"));
+                  reject(
+                    retryErr ??
+                      new Error(
+                        `Memcached increment failed for key "${key}": could not read key after add conflict`,
+                      ),
+                  );
                   return;
                 }
                 this.casUpdate(prefixed, retryData, amount, resolve, reject);
@@ -135,12 +140,16 @@ export class MemcachedStore implements RateLimitStore {
       // Find the actual value — it's the first non-cas property
       const valueKey = Object.keys(data).find((k) => k !== "cas");
       if (!valueKey) {
-        reject(new Error("No value found in CAS response"));
+        reject(new Error(`Memcached CAS response for key "${prefixedKey}" contained no value`));
         return;
       }
       record = JSON.parse(data[valueKey] as string) as RateLimitRecord;
     } catch {
-      reject(new Error("Failed to parse record from Memcached"));
+      reject(
+        new Error(
+          `Memcached failed to parse stored record for key "${prefixedKey}": data is not valid JSON`,
+        ),
+      );
       return;
     }
 
