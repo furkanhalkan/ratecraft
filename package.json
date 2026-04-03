@@ -1,6 +1,6 @@
 {
   "name": "ratecraft",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Framework-agnostic, TypeScript-first rate limiter for Node.js, Bun, and Deno",
   "type": "module",
   "main": "./dist/index.cjs",

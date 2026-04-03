@@ -95,13 +95,6 @@ async function main() {
     redis: redisHealthy ? "connected" : "disconnected",
   }));
 
-  // ─── Graceful shutdown ──────────────────────────────────────
-  app.addHook("onClose", async () => {
-    clearInterval(healthInterval);
-    await limiter.shutdown();
-    await redis.quit();
-  });
-
   // ─── Start ──────────────────────────────────────────────────
   await app.listen({ port: PORT });
   console.log(`Fastify server running at http://localhost:${PORT}`);
@@ -110,6 +103,18 @@ async function main() {
   console.log(`  GET http://localhost:${PORT}/          (50 req/min)`);
   console.log(`  GET http://localhost:${PORT}/api/users (50 req/min)`);
   console.log(`  GET http://localhost:${PORT}/health`);
+
+  // ─── Graceful shutdown ──────────────────────────────────────
+  // Cleanup runs on process signal, not inside a request handler.
+  async function shutdown() {
+    clearInterval(healthInterval);
+    await app.close();
+    await limiter.shutdown();
+    await redis.quit();
+  }
+
+  process.on("SIGINT", shutdown);
+  process.on("SIGTERM", shutdown);
 }
 
 main().catch((err) => {
