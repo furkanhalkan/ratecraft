@@ -113,7 +113,7 @@
     }
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.8.0",
+    "@biomejs/biome": "^2.4.12",
     "@types/express": "^4.17.25",
     "@types/memcached": "^2.2.10",
     "@types/node": "^25.5.0",
